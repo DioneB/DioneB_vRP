@@ -5,18 +5,17 @@ local Proxy = module("vrp", "lib/Proxy")
 local Tools = module("vrp", "lib/Tools")
 
 tvRP = {}
-local players = {} -- keep track of connected players (server id)
-
--- bind client tunnel interface
 Tunnel.bindInterface("vRP", tvRP)
-
--- get server interface
 vRPserver = Tunnel.getInterface("vRP")
 
--- add client proxy interface (same as tunnel interface)
 Proxy.addInterface("vRP",tvRP)
 
--- functions
+AddEventHandler("playerSpawned", function ()
+	if not Ran then
+		ShutdownLoadingScreenNui()
+		Ran = true
+	end
+end)
 
 local user_id
 function tvRP.setUserId(_user_id)
@@ -29,15 +28,23 @@ function tvRP.getUserId()
 end
 
 function tvRP.teleport(x,y,z)
-  tvRP.unjail() -- force unjail before a teleportation
-  SetEntityCoords(GetPlayerPed(-1), x+0.0001, y+0.0001, z+0.0001, 1,0,0,1)
-  vRPserver._updatePos(x,y,z)
+	SetEntityCoords(PlayerPedId(),x+0.0001,y+0.0001,z+0.0001,1,0,0,1)
+	vRPserver._updatePos(x,y,z)
 end
 
--- return x,y,z
+function tvRP.getUserHeading()
+	return GetEntityHeading(PlayerPedId())
+end
+
+function tvRP.clearWeapons()
+  RemoveAllPedWeapons(PlayerPedId(),true)
+end
+
+-- return x,y,z,h
 function tvRP.getPosition()
-  local x,y,z = table.unpack(GetEntityCoords(GetPlayerPed(-1),true))
-  return x,y,z
+	local x,y,z = table.unpack(GetEntityCoords(PlayerPedId(),true))
+	local heading = GetEntityHeading(PlayerPedId())
+	return x,y,z,heading
 end
 
 -- return false if in exterior, true if inside a building
@@ -48,12 +55,12 @@ end
 
 -- return vx,vy,vz
 function tvRP.getSpeed()
-  local vx,vy,vz = table.unpack(GetEntityVelocity(GetPlayerPed(-1)))
+  local vx,vy,vz = table.unpack(GetEntityVelocity(PlayerPedId()))
   return math.sqrt(vx*vx+vy*vy+vz*vz)
 end
 
 function tvRP.getCamDirection()
-  local heading = GetGameplayCamRelativeHeading()+GetEntityHeading(GetPlayerPed(-1))
+  local heading = GetGameplayCamRelativeHeading()+GetEntityHeading(PlayerPedId())
   local pitch = GetGameplayCamRelativePitch()
 
   local x = -math.sin(heading*math.pi/180.0)
@@ -69,70 +76,6 @@ function tvRP.getCamDirection()
   end
 
   return x,y,z
-end
-
-function tvRP.addPlayer(player)
-  players[player] = true
-end
-
-function tvRP.removePlayer(player)
-  players[player] = nil
-end
-
-function tvRP.getPlayers()
-  return players
-end
-
-function tvRP.getNearestPlayers(radius)
-  local r = {}
-
-  local ped = GetPlayerPed(i)
-  local pid = PlayerId()
-  local px,py,pz = tvRP.getPosition()
-
-  --[[
-  for i=0,GetNumberOfPlayers()-1 do
-    if i ~= pid then
-      local oped = GetPlayerPed(i)
-
-      local x,y,z = table.unpack(GetEntityCoords(oped,true))
-      local distance = GetDistanceBetweenCoords(x,y,z,px,py,pz,true)
-      if distance <= radius then
-        r[GetPlayerServerId(i)] = distance
-      end
-    end
-  end
-  --]]
-
-  for k,v in pairs(players) do
-    local player = GetPlayerFromServerId(k)
-
-    if v and player ~= pid and NetworkIsPlayerConnected(player) then
-      local oped = GetPlayerPed(player)
-      local x,y,z = table.unpack(GetEntityCoords(oped,true))
-      local distance = GetDistanceBetweenCoords(x,y,z,px,py,pz,true)
-      if distance <= radius then
-        r[GetPlayerServerId(player)] = distance
-      end
-    end
-  end
-
-  return r
-end
-
-function tvRP.getNearestPlayer(radius)
-  local p = nil
-
-  local players = tvRP.getNearestPlayers(radius)
-  local min = radius+10.0
-  for k,v in pairs(players) do
-    if v < min then
-      min = v
-      p = k
-    end
-  end
-
-  return p
 end
 
 function tvRP.notify(msg)
@@ -187,7 +130,7 @@ function tvRP.playAnim(upper, seq, looping)
   if seq.task then -- is a task (cf https://github.com/ImagicTheCat/vRP/pull/118)
     tvRP.stopAnim(true)
 
-    local ped = GetPlayerPed(-1)
+    local ped = PlayerPedId()
     if seq.task == "PROP_HUMAN_SEAT_CHAIR_MP_PLAYER" then -- special case, sit in a chair
       local x,y,z = tvRP.getPosition()
       TaskStartScenarioAtPosition(ped, seq.task, x, y, z-1, GetEntityHeading(ped), 0, 0, false)
@@ -232,11 +175,11 @@ function tvRP.playAnim(upper, seq, looping)
               if not first then inspeed = 2.0001 end
               if not last then outspeed = 2.0001 end
 
-              TaskPlayAnim(GetPlayerPed(-1),dict,name,inspeed,outspeed,-1,flags,0,0,0,0)
+              TaskPlayAnim(PlayerPedId(),dict,name,inspeed,outspeed,-1,flags,0,0,0,0)
             end
 
             Citizen.Wait(0)
-            while GetEntityAnimCurrentTime(GetPlayerPed(-1),dict,name) <= 0.95 and IsEntityPlayingAnim(GetPlayerPed(-1),dict,name,3) and anims[id] do
+            while GetEntityAnimCurrentTime(PlayerPedId(),dict,name) <= 0.95 and IsEntityPlayingAnim(PlayerPedId(),dict,name,3) and anims[id] do
               Citizen.Wait(0)
             end
           end
@@ -255,9 +198,9 @@ end
 function tvRP.stopAnim(upper)
   anims = {} -- stop all sequences
   if upper then
-    ClearPedSecondaryTask(GetPlayerPed(-1))
+    ClearPedSecondaryTask(PlayerPedId())
   else
-    ClearPedTasks(GetPlayerPed(-1))
+    ClearPedTasks(PlayerPedId())
   end
 end
 
@@ -274,38 +217,11 @@ Citizen.CreateThread(function()
   while true do
     Citizen.Wait(10)
     if ragdoll then
-      SetPedToRagdoll(GetPlayerPed(-1), 1000, 1000, 0, 0, 0, 0)
+      SetPedToRagdoll(PlayerPedId(), 1000, 1000, 0, 0, 0, 0)
     end
   end
 end)
 
--- SOUND
--- some lists: 
--- pastebin.com/A8Ny8AHZ
--- https://wiki.gtanet.work/index.php?title=FrontEndSoundlist
-
--- play sound at a specific position
-function tvRP.playSpatializedSound(dict,name,x,y,z,range)
-  PlaySoundFromCoord(-1,name,x+0.0001,y+0.0001,z+0.0001,dict,0,range+0.0001,0)
-end
-
--- play sound
-function tvRP.playSound(dict,name)
-  PlaySound(-1,name,dict,0,0,1)
-end
-
---[[
--- not working
-function tvRP.setMovement(dict)
-  if dict then
-    SetPedMovementClipset(GetPlayerPed(-1),dict,true)
-  else
-    ResetPedMovementClipset(GetPlayerPed(-1),true)
-  end
-end
---]]
-
--- events
 
 AddEventHandler("playerSpawned",function()
   TriggerServerEvent("vRPcli:playerSpawned")
@@ -319,28 +235,12 @@ AddEventHandler("onPlayerKilled",function(player,killer,reason)
   TriggerServerEvent("vRPcli:playerDied")
 end)
 
--- voice proximity computation
 Citizen.CreateThread(function()
-  while true do
-    Citizen.Wait(500)
-    if cfg.vrp_voip then -- vRP voip
-      NetworkSetTalkerProximity(0) -- disable voice chat
-    else -- regular voice chat
-      local ped = GetPlayerPed(-1)
-      local proximity = cfg.voice_proximity
-
-      if IsPedSittingInAnyVehicle(ped) then
-        local veh = GetVehiclePedIsIn(ped,false)
-        local hash = GetEntityModel(veh)
-        -- make open vehicles (bike,etc) use the default proximity
-        if IsThisModelACar(hash) or IsThisModelAHeli(hash) or IsThisModelAPlane(hash) then
-          proximity = cfg.voice_proximity_vehicle
-        end
-      elseif tvRP.isInside() then
-        proximity = cfg.voice_proximity_inside
-      end
-
-      NetworkSetTalkerProximity(proximity+0.0001)
-    end
-  end
+	while true do
+		Citizen.Wait(1)
+		if NetworkIsSessionStarted() then
+			TriggerServerEvent("Queue:playerActivated")
+			return
+		end
+	end
 end)

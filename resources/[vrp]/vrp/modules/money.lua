@@ -1,4 +1,3 @@
-local lang = vRP.lang
 
 -- Money module, wallet/bank API
 -- The money is managed with direct SQL requests to prevent most potential value corruptions
@@ -44,12 +43,6 @@ function vRP.setMoney(user_id,value)
   local tmp = vRP.getUserTmpTable(user_id)
   if tmp then
     tmp.wallet = value
-  end
-
-  -- update client display
-  local source = vRP.getUserSource(user_id)
-  if source then
-    vRPclient._setDivContent(source,"money",lang.money.display({value}))
   end
 end
 

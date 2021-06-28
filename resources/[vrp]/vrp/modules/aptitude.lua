@@ -2,7 +2,6 @@
 -- define aptitude system (aka. education, skill system)
 
 local cfg = module("cfg/aptitudes")
-local lang = vRP.lang
 
 -- exp notes:
 -- levels are defined by the amount of xp
@@ -95,17 +94,17 @@ function vRP.varyExp(user_id, group, aptitude, amount)
 
       --- exp
       if amount < 0 then
-        vRPclient._notify(player,lang.aptitude.lose_exp({group_title,aptitude_title,-1*amount}))
+        -- vRPclient._notify(player,lang.aptitude.lose_exp({group_title,aptitude_title,-1*amount}))
       elseif amount > 0 then
-        vRPclient._notify(player,lang.aptitude.earn_exp({group_title,aptitude_title,amount}))
+        -- vRPclient._notify(player,lang.aptitude.earn_exp({group_title,aptitude_title,amount}))
       end
       --- level up/down
       local new_level = math.floor(vRP.expToLevel(exp))
       local diff = new_level-level
       if diff < 0 then
-        vRPclient._notify(player,lang.aptitude.level_down({group_title,aptitude_title,new_level}))
+        -- vRPclient._notify(player,lang.aptitude.level_down({group_title,aptitude_title,new_level}))
       elseif diff > 0 then
-        vRPclient._notify(player,lang.aptitude.level_up({group_title,aptitude_title,new_level}))
+        -- vRPclient._notify(player,lang.aptitude.level_up({group_title,aptitude_title,new_level}))
       end
     end
   end
@@ -165,70 +164,4 @@ for k,v in pairs(cfg.gaptitudes) do
     end
   end
 end
-
--- MENU
-
-local player_apts = {}
-
-local function ch_aptitude(player,choice)
-  -- display aptitudes
-  local user_id = vRP.getUserId(player)
-  if user_id then
-    if player_apts[player] then -- hide
-      player_apts[player] = nil
-      vRPclient._removeDiv(player,"user_aptitudes")
-    else -- show
-      local content = ""
-      local uaptitudes = vRP.getUserAptitudes(user_id)
-      for k,v in pairs(uaptitudes) do
-        -- display group
-        content = content..lang.aptitude.display.group({vRP.getAptitudeGroupTitle(k)}).."<br />"
-        for l,w in pairs(v) do
-          local def = vRP.getAptitudeDefinition(k,l)
-          if def then
-            -- display aptitude
-            local exp = uaptitudes[k][l]
-            local flvl = vRP.expToLevel(exp)
-            local lvl = math.floor(flvl)
-            local percent = math.floor((flvl-lvl)*100)
-            content = content.."<div class=\"dprogressbar\" data-value=\""..(percent/100).."\" data-color=\"rgba(0,125,255,0.7)\" data-bgcolor=\"rgba(0,125,255,0.3)\">"..lang.aptitude.display.aptitude({def[1], exp, lvl, percent}).."</div>"
-          end
-        end
-      end
-
-      player_apts[player] = true
-
-      local css = [[
-.div_user_aptitudes{
-  margin: auto;
-  padding: 8px;
-  width: 500px;
-  margin-top: 80px;
-  background: black;
-  color: white;
-  font-weight: bold;
-}
-
-.div_user_aptitudes .dprogressbar{
-  width: 100%;
-  height: 20px;
-}
-      ]]
-
-      vRPclient._setDiv(player,"user_aptitudes",css, content)
-    end
-  end
-end
-
--- add choices to the menu
-vRP.registerMenuBuilder("main", function(add, data)
-  local user_id = vRP.getUserId(data.player)
-  if user_id then
-    local choices = {}
-    choices[lang.aptitude.title()] = {ch_aptitude,lang.aptitude.description()}
-
-    add(choices)
-  end
-end)
-
 

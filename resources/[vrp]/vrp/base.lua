@@ -7,9 +7,6 @@ vRP = {}
 Proxy.addInterface("vRP",vRP)
 tvRP = {}
 Tunnel.bindInterface("vRP",tvRP) 
-local Lang = Luang()
-Lang:loadLocale(config.lang, module("cfg/lang/"..config.lang) or {})
-vRP.lang = Lang.lang[config.lang]
 vRPclient = Tunnel.getInterface("vRP") 
 
 vRP.users,vRP.rusers,vRP.user_tables,vRP.user_tmp_tables,vRP.user_sources = {},{},{},{},{}
@@ -161,7 +158,7 @@ end)
 function vRP.getUserIdByIdentifiers(ids)
   if ids and #ids then
     for i=1,#ids do
-      if not config.ignore_ip_identifier or (string.find(ids[i], "ip:") == nil) then
+      if (string.find(ids[i], "ip:") == nil) then
         local rows = vRP.query("vRP/userid_byidentifier", {identifier = ids[i]})
         if #rows > 0 then
           return rows[1].user_id
@@ -172,7 +169,7 @@ function vRP.getUserIdByIdentifiers(ids)
     if #rows > 0 then
       local user_id = rows[1].id
       for l,w in pairs(ids) do
-        if not config.ignore_ip_identifier or (string.find(w, "ip:") == nil) then
+        if (string.find(w, "ip:") == nil) then
           vRP.execute("vRP/add_identifier", {user_id = user_id, identifier = w})
         end
       end
@@ -309,6 +306,74 @@ function vRP.kick(source,reason)
   DropPlayer(source,reason)
 end
 
+function vRP.GetClosestPlayer(src,radius)
+	local players = GetPlayers()
+	local p_coords = GetEntityCoords(GetPlayerPed(src))
+	for index, player in ipairs(players) do
+		if parseInt(player) ~= parseInt(src) then
+			local playerPed = GetPlayerPed(parseInt(player))
+			if(DoesEntityExist(playerPed)) then
+				local coords = GetEntityCoords(playerPed)
+				if #(coords - p_coords) <= radius then 
+					return parseInt(player)
+				end 
+			end
+		end
+	end
+end
+function vRP.GetClosestPlayers(src,radius)
+	local users = {}
+	local players = GetPlayers()
+	local p_coords = GetEntityCoords(GetPlayerPed(src))
+	for index, player in ipairs(players) do
+		if parseInt(player) ~= parseInt(src) then
+			local playerPed = GetPlayerPed(parseInt(player))
+			if(DoesEntityExist(playerPed)) then
+				local coords = GetEntityCoords(playerPed)
+				if #(coords - p_coords) <= radius then 
+					table.insert(users, parseInt(player))
+				end 
+			end
+		end
+	end
+	return users
+end
+
+function vRP.GetClosestUsers(src,radius)
+	local users = {}
+	local players = GetPlayers()
+	local p_coords = GetEntityCoords(GetPlayerPed(src))
+	for index, player in ipairs(players) do
+		if parseInt(player) ~= parseInt(src) then
+			local playerPed = GetPlayerPed(parseInt(player))
+			if(DoesEntityExist(playerPed)) then
+				local coords = GetEntityCoords(playerPed)
+				if #(coords - p_coords) <= radius then
+					local user_id = vRP.getUserId(parseInt(player))
+					table.insert(users, user_id)
+				end 
+			end
+		end
+	end
+	return users
+end
+
+function vRP.IsClosestUser(src,uid,radius)
+	local players = GetPlayers()
+	local p_coords = GetEntityCoords(GetPlayerPed(src))
+	for index, player in ipairs(players) do
+		if parseInt(player) ~= parseInt(src) then
+			local playerPed = GetPlayerPed(parseInt(player))
+			if(DoesEntityExist(playerPed)) then
+				local coords = GetEntityCoords(playerPed)
+				if #(coords - p_coords) <= radius then
+					if uid == vRP.getUserId(parseInt(player)) then return true end
+				end 
+			end
+		end
+	end
+end
+
 function vRP.dropPlayer(source)
   local user_id = vRP.getUserId(source)
   local endpoint = vRP.getPlayerEndpoint(source)
@@ -337,17 +402,8 @@ async(function()
   task_save_datatables()
 end)
 
-AddEventHandler( "vRP:ServerLoaded",function()
-    Loaded = true
-end)
-
 AddEventHandler("queue:playerConnecting",function(source,ids,name,setKickReason,deferrals)
 	deferrals.defer()
-	if not Loaded then
-		deferrals.done("[DioneB vRPEX] Aguarde o Servidor Iniciar.")
-		TriggerEvent("queue:playerConnectingRemoveQueues",ids)
-		return
-	end
 	Debug.log("playerConnecting "..name)
 	local source = source
 	local ids = ids  
@@ -449,31 +505,23 @@ AddEventHandler("playerDropped",function(reason)
 end)
 
 RegisterServerEvent("vRPcli:playerSpawned")
-AddEventHandler("vRPcli:playerSpawned", function()
-  Debug.log("playerSpawned "..source)
-  local user_id = vRP.getUserId(source)
-  local player = source
-  if user_id then
-    vRP.user_sources[user_id] = source
-    local tmp = vRP.getUserTmpTable(user_id)
-    tmp.spawns = tmp.spawns+1
-    local first_spawn = (tmp.spawns == 1)
-    if first_spawn then
-      for k,v in pairs(vRP.user_sources) do
-        vRPclient._addPlayer(source,v)
-      end
-      vRPclient._addPlayer(-1,source)
-      Tunnel.setDestDelay(player, config.load_delay)
-      SetTimeout(2000, function() 
-        SetTimeout(config.load_duration*1000, function()
-          Tunnel.setDestDelay(player, config.global_delay)
-        end)
-      end)
-    end
-    SetTimeout(2000, function()
-      TriggerEvent("vRP:playerSpawn",user_id,player,first_spawn)
-    end)
-  end
+AddEventHandler("vRPcli:playerSpawned",function()
+	local user_id = vRP.getUserId(source)
+	if user_id then
+		vRP.user_sources[user_id] = source
+		local tmp = vRP.getUserTmpTable(user_id)
+		tmp.spawns = tmp.spawns+1
+		local first_spawn = (tmp.spawns == 1)
+
+		if first_spawn then
+			for k,v in pairs(vRP.user_sources) do
+				vRPclient._addPlayer(source,v)
+			end
+			vRPclient._addPlayer(-1,source)
+			Tunnel.setDestDelay(source,0)
+		end
+		TriggerEvent("vRP:playerSpawn",user_id,source,first_spawn)
+	end
 end)
 
 RegisterServerEvent("vRP:playerDied")

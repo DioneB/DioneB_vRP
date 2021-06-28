@@ -9,7 +9,6 @@
 local cfg = module("cfg/groups")
 local groups = cfg.groups
 local users = cfg.users
-local selectors = cfg.selectors
 
 -- return group title
 function vRP.getGroupTitle(group)
@@ -272,77 +271,10 @@ function vRP.hasPermissions(user_id, perms)
 end
 
 
--- GROUP SELECTORS
-
--- build menus
-local selector_menus = {}
-for k,v in pairs(selectors) do
-  local kgroups = {}
-
-  local function ch_select(player,choice)
-    local user_id = vRP.getUserId(player)
-    if user_id then
-      local gname = kgroups[choice]
-      if gname then
-        vRP.addUserGroup(user_id, gname)
-        vRP.closeMenu(player)
-      end
-    end
-  end
-
-  local menu = {name=k, css={top="75px",header_color="rgba(255,154,24,0.75)"}}
-  for l,w in pairs(v) do
-    if l ~= "_config" then
-      local title = vRP.getGroupTitle(w)
-      kgroups[title] = w
-      menu[title] = {ch_select}
-    end
-  end
-
-  selector_menus[k] = menu
-end
-
-local function build_client_selectors(source)
-  local user_id = vRP.getUserId(source)
-  if user_id then
-    for k,v in pairs(selectors) do
-      local gcfg = v._config
-      local menu = selector_menus[k]
-
-      if gcfg and menu then
-        local x = gcfg.x
-        local y = gcfg.y
-        local z = gcfg.z
-
-        local function selector_enter(source)
-          local user_id = vRP.getUserId(source)
-          if user_id ~= nil and vRP.hasPermissions(user_id,gcfg.permissions or {}) then
-            vRP.openMenu(source,menu) 
-          end
-        end
-
-        local function selector_leave(source)
-          vRP.closeMenu(source)
-        end
-
-        vRPclient._addBlip(source,x,y,z,gcfg.blipid,gcfg.blipcolor,k)
-        vRPclient._addMarker(source,x,y,z-1,0.7,0.7,0.5,255,154,24,125,150)
-
-        vRP.setArea(source,"vRP:gselector:"..k,x,y,z,1,1.5,selector_enter,selector_leave)
-      end
-    end
-  end
-end
-
--- events
-
 -- player spawn
 AddEventHandler("vRP:playerSpawn", function(user_id, source, first_spawn)
   -- first spawn
   if first_spawn then
-    -- add selectors 
-    build_client_selectors(source)
-
     -- add groups on user join 
     local user = users[user_id]
     if user then

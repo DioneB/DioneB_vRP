@@ -82,7 +82,7 @@ Citizen.CreateThread(function() -- coma thread
     local ped = GetPlayerPed(-1)
     
     local health = GetEntityHealth(ped)
-    if health <= cfg.coma_threshold and coma_left > 0 then
+    if health <= 120 and coma_left > 0 then
       if not in_coma then -- go to coma state
         if IsEntityDead(ped) then -- if dead, resurrect
           local x,y,z = tvRP.getPosition()
@@ -93,17 +93,17 @@ Citizen.CreateThread(function() -- coma thread
         -- coma state
         in_coma = true
 
-        vRPserver._updateHealth(cfg.coma_threshold) -- force health update
+        vRPserver._updateHealth(120) -- force health update
 
-        SetEntityHealth(ped, cfg.coma_threshold)
+        SetEntityHealth(ped, 120)
         SetEntityInvincible(ped,true)
         tvRP.playScreenEffect(cfg.coma_effect,-1)
         tvRP.ejectVehicle()
         tvRP.setRagdoll(true)
       else -- in coma
         -- maintain life
-        if health < cfg.coma_threshold then 
-          SetEntityHealth(ped, cfg.coma_threshold) 
+        if health < 120 then 
+          SetEntityHealth(ped, 120) 
         end
       end
     else

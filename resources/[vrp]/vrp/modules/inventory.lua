@@ -1,4 +1,3 @@
-local lang = vRP.lang
 local cfg = module("cfg/inventory")
 
 -- this module define the player inventory (lost after respawn, as wallet)
@@ -9,17 +8,16 @@ vRP.items = {}
 -- idname: unique item name
 -- name: display name or genfunction
 -- description: item description (html) or genfunction
--- choices: menudata choices (see gui api) only as genfunction or nil
 -- weight: weight or genfunction
 --
 -- genfunction are functions returning a correct value as: function(args) return value end
 -- where args is a list of {base_idname,arg,arg,arg,...}
-function vRP.defInventoryItem(idname,name,description,choices,weight)
+function vRP.defInventoryItem(idname,name,description,weight)
   if weight == nil then
     weight = 0
   end
 
-  local item = {name=name,description=description,choices=choices,weight=weight}
+  local item = {name=name,description=description,weight=weight}
   vRP.items[idname] = item
 end
 
@@ -31,14 +29,6 @@ end
 function vRP.computeItemDescription(item,args)
   if type(item.description) == "string" then return item.description
   else return item.description(args) end
-end
-
-function vRP.computeItemChoices(item,args)
-  if item.choices ~= nil then
-    return item.choices(args)
-  else
-    return {}
-  end
 end
 
 function vRP.computeItemWeight(item,args)
@@ -74,27 +64,6 @@ function vRP.getItemDescription(idname)
   local item = vRP.items[args[1]]
   if item then return vRP.computeItemDescription(item,args) end
   return ""
-end
-
-function vRP.getItemChoices(idname)
-  local args = vRP.parseItem(idname)
-  local item = vRP.items[args[1]]
-  local choices = {}
-  if item then
-    -- compute choices
-    local cchoices = vRP.computeItemChoices(item,args)
-    if cchoices then -- copy computed choices
-      for k,v in pairs(cchoices) do
-        choices[k] = v
-      end
-    end
-
-    -- add give/trash choices
-    choices[lang.inventory.give.title()] = {function(player,choice) ch_give(idname, player, choice) end, lang.inventory.give.description()}
-    choices[lang.inventory.trash.title()] = {function(player, choice) ch_trash(idname, player, choice) end, lang.inventory.trash.description()}
-  end
-
-  return choices
 end
 
 function vRP.getItemWeight(idname)
@@ -133,7 +102,7 @@ function vRP.giveInventoryItem(user_id,idname,amount,notify)
     if notify then
       local player = vRP.getUserSource(user_id)
       if player then
-        vRPclient._notify(player,lang.inventory.give.received({vRP.getItemName(idname),amount}))
+        -- vRPclient._notify(player,lang.inventory.give.received({vRP.getItemName(idname),amount}))
       end
     end
   end
@@ -158,7 +127,7 @@ function vRP.tryGetInventoryItem(user_id,idname,amount,notify)
       if notify then
         local player = vRP.getUserSource(user_id)
         if player then
-          vRPclient._notify(player,lang.inventory.give.given({vRP.getItemName(idname),amount}))
+          -- vRPclient._notify(player,lang.inventory.give.given({vRP.getItemName(idname),amount}))
         end
       end
 
@@ -170,7 +139,7 @@ function vRP.tryGetInventoryItem(user_id,idname,amount,notify)
         if player then
           local entry_amount = 0
           if entry then entry_amount = entry.amount end
-          vRPclient._notify(player,lang.inventory.missing({vRP.getItemName(idname),amount-entry_amount}))
+          -- vRPclient._notify(player,lang.inventory.missing({vRP.getItemName(idname),amount-entry_amount}))
         end
       end
     end
@@ -221,61 +190,6 @@ function vRP.clearInventory(user_id)
   local data = vRP.getUserDataTable(user_id)
   if data then
     data.inventory = {}
-  end
-end
-
--- INVENTORY MENU
-
--- open player inventory
-function vRP.openInventory(source)
-  local user_id = vRP.getUserId(source)
-
-  if user_id then
-    local data = vRP.getUserDataTable(user_id)
-    if data then
-      -- build inventory menu
-      local menudata = {name=lang.inventory.title(),css={top="75px",header_color="rgba(0,125,255,0.75)"}}
-      -- add inventory info
-      local weight = vRP.getInventoryWeight(user_id)
-      local max_weight = vRP.getInventoryMaxWeight(user_id)
-      local hue = math.floor(math.max(125*(1-weight/max_weight), 0))
-      menudata["<div class=\"dprogressbar\" data-value=\""..string.format("%.2f",weight/max_weight).."\" data-color=\"hsl("..hue..",100%,50%)\" data-bgcolor=\"hsl("..hue..",100%,25%)\" style=\"height: 12px; border: 3px solid black;\"></div>"] = {function()end, lang.inventory.info_weight({string.format("%.2f",weight),max_weight})}
-      local kitems = {}
-
-      -- choose callback, nested menu, create the item menu
-      local choose = function(player,choice)
-        if string.sub(choice,1,1) ~= "@" then -- ignore info choices
-        local choices = vRP.getItemChoices(kitems[choice])
-          -- build item menu
-          local submenudata = {name=choice,css={top="75px",header_color="rgba(0,125,255,0.75)"}}
-
-          -- add computed choices
-          for k,v in pairs(choices) do
-            submenudata[k] = v
-          end
-
-          -- nest menu
-          submenudata.onclose = function()
-            vRP.openInventory(source) -- reopen inventory when submenu closed
-          end
-
-          -- open menu
-          vRP.openMenu(source,submenudata)
-        end
-      end
-
-      -- add each item to the menu
-      for k,v in pairs(data.inventory) do 
-        local name,description,weight = vRP.getItemDefinition(k)
-        if name ~= nil then
-          kitems[name] = k -- reference item by display name
-          menudata[name] = {choose,lang.inventory.iteminfo({v.amount,description,string.format("%.2f",weight)})}
-        end
-      end
-
-      -- open menu
-      vRP.openMenu(source,menudata)
-    end
   end
 end
 

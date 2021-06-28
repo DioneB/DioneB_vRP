@@ -1,9 +1,11 @@
 --[[ - Dione B. ~ A.K.A: @StrykeONE ]] --
 
+resource_type 'gametype' { name = 'Roleplay' }
 fx_version 'bodacious'
 game 'gta5'
 
 ui_page "gui/index.html"
+
 author "https://github.com/ImagicTheCat"
 
 -- server scripts
@@ -13,7 +15,6 @@ server_scripts{
   "queue.lua",
   "modules/gui.lua",
   "modules/group.lua",
-  "modules/admin.lua",
   "modules/survival.lua",
   "modules/player_state.lua",
   "modules/money.lua",

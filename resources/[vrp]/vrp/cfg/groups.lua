@@ -113,19 +113,6 @@ cfg.users = {
   }
 }
 
--- group selectors
--- _config
---- x,y,z, blipid, blipcolor, permissions (optional)
-
-cfg.selectors = {
-  ["Job Selector"] = {
-    _config = {x = -268.363739013672, y = -957.255126953125, z = 31.22313880920410, blipid = 351, blipcolor = 47},
-    "police",
-    "taxi",
-    "repair",
-    "citizen"
-  }
-}
 
 return cfg
 

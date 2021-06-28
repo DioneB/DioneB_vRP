@@ -10,10 +10,8 @@ end
 Citizen.CreateThread(function()
   while true do
     Citizen.Wait(30000)
-
     if IsPlayerPlaying(PlayerId()) and state_ready then
       local x,y,z = table.unpack(GetEntityCoords(GetPlayerPed(-1),true))
-
       vRPserver._updatePos(x,y,z)
       vRPserver._updateHealth(tvRP.getHealth())
       vRPserver._updateWeapons(tvRP.getWeapons())
