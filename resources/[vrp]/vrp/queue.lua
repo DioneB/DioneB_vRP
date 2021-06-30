@@ -66,11 +66,9 @@ end
 function Queue:IsInQueue(ids,rtnTbl,bySource,connecting)
 	for genericKey1,genericValue1 in ipairs(connecting and self.Connecting or self.QueueList) do
 		local inQueue = false
-
 		if not bySource then
 			for genericKey2,genericValue2 in ipairs(genericValue1.ids) do
 				if inQueue then break end
-
 				for genericKey3,genericValue3 in ipairs(ids) do
 					if genericValue3 == genericValue2 then inQueue = true break end
 				end
@@ -78,12 +76,10 @@ function Queue:IsInQueue(ids,rtnTbl,bySource,connecting)
 		else
 			inQueue = ids == genericValue1.source
 		end
-
 		if inQueue then
 			if rtnTbl then
 				return genericKey1, connecting and self.Connecting[genericKey1] or self.QueueList[genericKey1]
 			end
-
 			return true
 		end
 	end
@@ -93,27 +89,22 @@ end
 local function getDBPriorities()
 	local rows = vRP.query("vRP/get_priority_list",{})
 	DBPriority = {}
-
 	for i=1,#rows do
 		DBPriority[rows[i].steam] = rows[i].priority
-	end	
-
+	end
 	return DBPriority
 end
 
 function Queue:IsPriority(ids)
 	for k,v in ipairs(ids) do
 		v = string_lower(v)
-
 		DBPriority = getDBPriorities()
-
 		if string_sub(v,1,5) == "steam" and not DBPriority[v] then
 			local steamid = self:HexIdToSteamId(v)
 			if DBPriority[steamid] then
 				return DBPriority[steamid] ~= nil and DBPriority[steamid] or false
 			end
 		end
-
 		if DBPriority[v] then
 			return DBPriority[v] ~= nil and DBPriority[v] or false
 		end
@@ -124,7 +115,6 @@ function Queue:AddToQueue(ids,connectTime,name,src,deferrals)
 	if self:IsInQueue(ids) then
 		return
 	end
-
 	local tmp = {
 		source = src,
 		ids = ids,
