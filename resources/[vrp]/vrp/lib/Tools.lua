@@ -1,9 +1,4 @@
--- this file define some useful tools
-
 local Tools = {}
-
--- ID generator
-
 local IDGenerator = {}
 
 function Tools.newIDGenerator()
@@ -21,22 +16,17 @@ function IDGenerator:clear()
   self.ids = {}
 end
 
--- return a new id
 function IDGenerator:gen()
   if #self.ids > 0 then
     return table.remove(self.ids)
-  else
-    local r = self.max
-    self.max = self.max+1
-    return r
   end
+  local r = self.max
+  self.max = self.max+1
+  return r
 end
 
--- free a previously generated id
 function IDGenerator:free(id)
   table.insert(self.ids,id)
 end
-
--- USEFUL FUNCTIONS
 
 return Tools
