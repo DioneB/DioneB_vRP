@@ -1,6 +1,5 @@
 
 local Tools = module("vrp", "lib/Tools")
-
 local Debug = {}
 
 if SERVER then
@@ -18,17 +17,14 @@ function Debug.log(str, no_limit)
     if not no_limit and string.len(str) > Debug.maxlen then
       str = string.sub(str,1,Debug.maxlen).."..."
     end
-
     print("[vRP Debug] "..str)
   end
 end
 
--- begin profile
 function Debug.pbegin(str)
   if not max_time then
     max_time = 2
   end
-
   if Debug.active then
     local id = profile_ids:gen()
     profiles[id] = {os.clock(), str}
@@ -36,7 +32,6 @@ function Debug.pbegin(str)
   end
 end
 
--- end profile
 function Debug.pend(id)
   if Debug.active then
     local profile = profiles[id]
@@ -48,10 +43,8 @@ function Debug.pend(id)
   end
 end
 
--- copy table without userdata
 function Debug.safeTableCopy(t)
   local r = t
-
   if type(t) == "table" then
     r = {}
     for k,v in pairs(t) do
@@ -60,7 +53,6 @@ function Debug.safeTableCopy(t)
       end
     end
   end
-
   return r
 end
 
