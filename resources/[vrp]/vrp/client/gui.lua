@@ -1,13 +1,11 @@
 
 -- PROMPT
-
 function tvRP.prompt(title,default_text)
   SendNUIMessage({act="prompt",title=title,text=tostring(default_text)})
   SetNuiFocus(true)
 end
 
 -- REQUEST
-
 function tvRP.request(id,text,time)
   SendNUIMessage({act="request",id=id,text=tostring(text),time = time})
   tvRP.playSound("HUD_MINI_GAME_SOUNDSET","5_SEC_WARNING")

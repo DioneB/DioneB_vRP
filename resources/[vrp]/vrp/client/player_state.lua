@@ -1,6 +1,3 @@
-
--- periodic player state update
-
 local state_ready = false
 
 function tvRP.playerStateReady(state)
@@ -21,8 +18,6 @@ Citizen.CreateThread(function()
 end)
 
 -- WEAPONS
-
--- def
 local weapon_types = {
   "WEAPON_KNIFE",
   "WEAPON_STUNGUN",
@@ -79,16 +74,13 @@ end
 
 function tvRP.getWeapons()
   local player = GetPlayerPed(-1)
-
-  local ammo_types = {} -- remember ammo type to not duplicate ammo amount
-
+  local ammo_types = {}
   local weapons = {}
   for k,v in pairs(weapon_types) do
     local hash = GetHashKey(v)
     if HasPedGotWeapon(player,hash) then
       local weapon = {}
       weapons[v] = weapon
-
       local atype = Citizen.InvokeNative(0x7FEAD38B326B9F74, player, hash)
       if ammo_types[atype] == nil then
         ammo_types[atype] = true
@@ -98,12 +90,9 @@ function tvRP.getWeapons()
       end
     end
   end
-
   return weapons
 end
 
--- replace weapons (combination of getWeapons and giveWeapons)
--- return previous weapons
 function tvRP.replaceWeapons(weapons)
   local old_weapons = tvRP.getWeapons()
   tvRP.giveWeapons(weapons, true)
@@ -112,105 +101,73 @@ end
 
 function tvRP.giveWeapons(weapons,clear_before)
   local player = GetPlayerPed(-1)
-
-  -- give weapons to player
-
   if clear_before then
     RemoveAllPedWeapons(player,true)
   end
-
   for k,weapon in pairs(weapons) do
     local hash = GetHashKey(k)
     local ammo = weapon.ammo or 0
-
     GiveWeaponToPed(player, hash, ammo, false)
   end
 end
 
--- set player armour (0-100)
 function tvRP.setArmour(amount)
   SetPedArmour(GetPlayerPed(-1), amount)
 end
 
---[[
-function tvRP.dropWeapon()
-  SetPedDropsWeapon(GetPlayerPed(-1))
-end
---]]
-
--- PLAYER CUSTOMIZATION
-
--- parse part key (a ped part or a prop part)
--- return is_proppart, index
 local function parse_part(key)
   if type(key) == "string" and string.sub(key,1,1) == "p" then
     return true,tonumber(string.sub(key,2))
-  else
-    return false,tonumber(key)
   end
+  return false,tonumber(key)
 end
 
 function tvRP.getDrawables(part)
   local isprop, index = parse_part(part)
   if isprop then
-    return GetNumberOfPedPropDrawableVariations(GetPlayerPed(-1),index)
-  else
-    return GetNumberOfPedDrawableVariations(GetPlayerPed(-1),index)
+    return GetNumberOfPedPropDrawableVariations(GetPlayerPed(-1),index) 
   end
+  return GetNumberOfPedDrawableVariations(GetPlayerPed(-1),index)
 end
 
 function tvRP.getDrawableTextures(part,drawable)
   local isprop, index = parse_part(part)
   if isprop then
     return GetNumberOfPedPropTextureVariations(GetPlayerPed(-1),index,drawable)
-  else
-    return GetNumberOfPedTextureVariations(GetPlayerPed(-1),index,drawable)
   end
+  return GetNumberOfPedTextureVariations(GetPlayerPed(-1),index,drawable)
 end
 
 function tvRP.getCustomization()
   local ped = GetPlayerPed(-1)
-
   local custom = {}
-
   custom.modelhash = GetEntityModel(ped)
-
-  -- ped parts
-  for i=0,20 do -- index limit to 20
+  for i=0,20 do
     custom[i] = {GetPedDrawableVariation(ped,i), GetPedTextureVariation(ped,i), GetPedPaletteVariation(ped,i)}
   end
-
-  -- props
-  for i=0,10 do -- index limit to 10
+  for i=0,10 do
     custom["p"..i] = {GetPedPropIndex(ped,i), math.max(GetPedPropTextureIndex(ped,i),0)}
   end
-
   return custom
 end
 
--- partial customization (only what is set is changed)
-function tvRP.setCustomization(custom) -- indexed [drawable,texture,palette] components or props (p0...) plus .modelhash or .model
+function tvRP.setCustomization(custom)
   local r = async()
-
-  Citizen.CreateThread(function() -- new thread
+  Citizen.CreateThread(function()
     if custom then
       local ped = GetPlayerPed(-1)
       local mhash = nil
-
-      -- model
       if custom.modelhash then
         mhash = custom.modelhash
       elseif custom.model then
         mhash = GetHashKey(custom.model)
       end
-
       if mhash then
         local i = 0
         while not HasModelLoaded(mhash) and i < 10000 do
           RequestModel(mhash)
           Citizen.Wait(10)
         end
-
         if HasModelLoaded(mhash) then
           -- changing player model remove weapons and armour, so save it
           local weapons = tvRP.getWeapons()
@@ -221,10 +178,7 @@ function tvRP.setCustomization(custom) -- indexed [drawable,texture,palette] com
           SetModelAsNoLongerNeeded(mhash)
         end
       end
-
       ped = GetPlayerPed(-1)
-
-      -- parts
       for k,v in pairs(custom) do
         if k ~= "model" and k ~= "modelhash" then
           local isprop, index = parse_part(k)
@@ -240,10 +194,8 @@ function tvRP.setCustomization(custom) -- indexed [drawable,texture,palette] com
         end
       end
     end
-
     r()
   end)
-
   return r:wait()
 end
 
