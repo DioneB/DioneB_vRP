@@ -1,80 +1,66 @@
 
--- this module define some police tools and functions
-
 local handcuffed = false
 local cop = false
 
--- set player as cop (true or false)
 function tvRP.setCop(flag)
   cop = flag
   SetPedAsCop(GetPlayerPed(-1),flag)
 end
 
--- HANDCUFF
-
 function tvRP.toggleHandcuff()
   handcuffed = not handcuffed
-
   SetEnableHandcuffs(GetPlayerPed(-1), handcuffed)
   if handcuffed then
     tvRP.playAnim(true,{{"mp_arresting","idle",1}},true)
-  else
-    tvRP.stopAnim(true)
-    SetPedStealthMovement(GetPlayerPed(-1),false,"") 
-  end
+  return end
+  tvRP.stopAnim(true)
+  SetPedStealthMovement(GetPlayerPed(-1),false,"") 
 end
 
 function tvRP.setHandcuffed(flag)
-  if handcuffed ~= flag then
-    tvRP.toggleHandcuff()
-  end
+  if handcuffed == flag then return end
+  tvRP.toggleHandcuff()
 end
 
 function tvRP.isHandcuffed()
   return handcuffed
 end
 
--- (experimental, based on experimental getNearestVehicle)
 function tvRP.putInNearestVehicleAsPassenger(radius)
   local veh = tvRP.getNearestVehicle(radius)
-
-  if IsEntityAVehicle(veh) then
-    for i=1,math.max(GetVehicleMaxNumberOfPassengers(veh),3) do
-      if IsVehicleSeatFree(veh,i) then
-        SetPedIntoVehicle(GetPlayerPed(-1),veh,i)
-        return true
-      end
+  if not IsEntityAVehicle(veh) then
+    return false
+  end
+  for i=1,math.max(GetVehicleMaxNumberOfPassengers(veh),3) do
+    if IsVehicleSeatFree(veh,i) then
+      SetPedIntoVehicle(GetPlayerPed(-1),veh,i)
+      return true
     end
   end
-  
-  return false
 end
 
 function tvRP.putInNetVehicleAsPassenger(net_veh)
   local veh = NetworkGetEntityFromNetworkId(net_veh)
-  if IsEntityAVehicle(veh) then
-    for i=1,GetVehicleMaxNumberOfPassengers(veh) do
-      if IsVehicleSeatFree(veh,i) then
-        SetPedIntoVehicle(GetPlayerPed(-1),veh,i)
-        return true
-      end
+  if not IsEntityAVehicle(veh) then return end
+  for i=1,GetVehicleMaxNumberOfPassengers(veh) do
+    if IsVehicleSeatFree(veh,i) then
+      SetPedIntoVehicle(GetPlayerPed(-1),veh,i)
+      return true
     end
   end
 end
 
 function tvRP.putInVehiclePositionAsPassenger(x,y,z)
   local veh = tvRP.getVehicleAtPosition(x,y,z)
-  if IsEntityAVehicle(veh) then
-    for i=1,GetVehicleMaxNumberOfPassengers(veh) do
-      if IsVehicleSeatFree(veh,i) then
-        SetPedIntoVehicle(GetPlayerPed(-1),veh,i)
-        return true
-      end
+  if not IsEntityAVehicle(veh) then return end
+  for i=1,GetVehicleMaxNumberOfPassengers(veh) do
+    if IsVehicleSeatFree(veh,i) then
+      SetPedIntoVehicle(GetPlayerPed(-1),veh,i)
+      return true
     end
   end
 end
 
--- keep handcuffed animation
 Citizen.CreateThread(function()
   while true do
     Citizen.Wait(15000)
@@ -84,7 +70,6 @@ Citizen.CreateThread(function()
   end
 end)
 
--- force stealth movement while handcuffed (prevent use of fist and slow the player)
 Citizen.CreateThread(function()
   while true do
     Citizen.Wait(0)
@@ -120,7 +105,6 @@ end)
 local follow_player
 function tvRP.followPlayer(player)
   follow_player = player
-
   if not player then 
     ClearPedTasks(GetPlayerPed(-1))
   end
