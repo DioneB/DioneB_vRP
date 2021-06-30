@@ -2314,16 +2314,14 @@ function htmlEntities.ASCII_HEX (input)
 	if math.abs(input) < 256 then
 		if _VERSION == 'Lua 5.3' then
 			return utf8.char(input)
-		else
-			local output = string.char(input)
-			if utf8_htmlEntities and not output:match('([%z\1-\127\194-\244][\128-\191]*)') then
-				return input
-			end
-			return output
 		end
-	else
-		return input
+		local output = string.char(input)
+		if utf8_htmlEntities and not output:match('([%z\1-\127\194-\244][\128-\191]*)') then
+			return input
+		end
+		return output
 	end
+	return input
 end
 
 function htmlEntities.ASCII_DEC (input)
@@ -2335,9 +2333,8 @@ function htmlEntities.ASCII_DEC (input)
 		input = tonumber(input, 16)
 		local output = htmlEntities.ASCII_HEX(input)
 		return output
-	else
-		return input
 	end
+	return input
 end
 
 function htmlEntities.decode (input)
@@ -2350,7 +2347,6 @@ function htmlEntities.decode (input)
 		output = string.gsub(output, '&#x([1234567890]*);', htmlEntities.ASCII_DEC)
 		output = string.gsub(output, '&#([1234567890]*);', htmlEntities.ASCII_HEX)
 	end
-
 	if debug_htmlEntities then print('>>'..output) end
 	return output
 end
@@ -2364,28 +2360,14 @@ function htmlEntities.encode (input)
   local output = ''
   for k = 1, string.len(input) do
     local input = string.sub(input,k,k)
-    -- MODIFIED TO PREVENT UTF8 ISSUES
     if input == "<" or input == ">" then
       output = output .. '&#'.. input:byte() ..';'
     else
       output = output..input
     end
   end
-
   if debug_htmlEntities then print('>>'..output) end
   return output
 end
-
---[[
-function string:htmlDecode(filter)
-	if not self then return false end
-	return htmlEntities.decode(self)
-end
-
-function string:htmlEncode(filter)
-	if not self then return false end
-	return htmlEntities.encode(self)
-end
---]]
 
 return htmlEntities
