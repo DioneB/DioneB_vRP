@@ -10,22 +10,14 @@ vRPserver = Tunnel.getInterface("vRP")
 
 Proxy.addInterface("vRP",tvRP)
 
-AddEventHandler("playerSpawned", function ()
-	if not Ran then
-		ShutdownLoadingScreenNui()
-		Ran = true
-	end
-end)
-
-local user_id
-function tvRP.setUserId(_user_id)
-  user_id = _user_id
+function onClientMapStart(...)
+  if not Ran then ShutdownLoadingScreenNui() Ran = true end
+  DoScreenFadeOut(1000)
+  exports.spawnmanager:setAutoSpawn(true)
+  exports.spawnmanager:forceRespawn()
 end
 
--- get user id (client-side)
-function tvRP.getUserId()
-  return user_id
-end
+AddEventHandler('onClientMapStart', onClientMapStart)
 
 function tvRP.teleport(x,y,z)
 	SetEntityCoords(PlayerPedId(),x+0.0001,y+0.0001,z+0.0001,1,0,0,1)
@@ -82,13 +74,6 @@ function tvRP.notify(msg)
   SetNotificationTextEntry("STRING")
   AddTextComponentString(msg)
   DrawNotification(true, false)
-end
-
-function tvRP.notifyPicture(icon, type, sender, title, text)
-    SetNotificationTextEntry("STRING")
-    AddTextComponentString(text)
-    SetNotificationMessage(icon, icon, true, type, sender, title, text)
-    DrawNotification(false, true)
 end
 
 -- SCREEN

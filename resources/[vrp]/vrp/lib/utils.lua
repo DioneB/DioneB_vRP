@@ -2,8 +2,9 @@
 -- it will create module, SERVER, CLIENT, async...
 
 -- side detection
-SERVER = not IsDuplicityVersion()
+SERVER = IsDuplicityVersion()
 CLIENT = not SERVER
+
 
 function table.maxn(t)
   local max = 0

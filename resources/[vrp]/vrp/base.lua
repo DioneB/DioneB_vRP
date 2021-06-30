@@ -135,13 +135,6 @@ vRP.prepare("vRP/get_userdata","SELECT dvalue FROM vrp_user_data WHERE user_id =
 vRP.prepare("vRP/set_srvdata","REPLACE INTO vrp_srv_data(dkey,dvalue) VALUES(@key,@value)")
 vRP.prepare("vRP/get_srvdata","SELECT dvalue FROM vrp_srv_data WHERE dkey = @key")
 
-vRP.prepare("vRP/set_itemdata","UPDATE vrp_item_data SET itemdata = @itemdata WHERE id = @id")
-vRP.prepare("vRP/add_itemdata","REPLACE INTO vrp_item_data(owner,item,itemdata) VALUES(@owner,@item,@itemdata)")
-vRP.prepare("vRP/get_itemdata","SELECT * FROM vrp_item_data WHERE id = @id")
-vRP.prepare("vRP/get_allitems","SELECT * FROM vrp_item_data")
-vRP.prepare("vRP/rem_itemdata","DELETE FROM vrp_item_data WHERE id = @id")
-vRP.prepare("vRP/get_itemid_scope","SELECT LAST_INSERT_ID()")
-
 vRP.prepare("vRP/get_banned","SELECT banned FROM vrp_users WHERE id = @user_id")
 vRP.prepare("vRP/set_banned","UPDATE vrp_users SET banned = @banned WHERE id = @user_id")
 vRP.prepare("vRP/get_whitelisted","SELECT whitelisted FROM vrp_users WHERE id = @user_id")

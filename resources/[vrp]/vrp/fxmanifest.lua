@@ -4,8 +4,6 @@ resource_type 'gametype' { name = 'Roleplay' }
 fx_version 'bodacious'
 game 'gta5'
 
-ui_page "gui/index.html"
-
 author "https://github.com/ImagicTheCat"
 
 -- server scripts
@@ -23,7 +21,7 @@ server_scripts{
   "modules/aptitude.lua",
   "modules/basic_items.lua",
   "modules/cloakroom.lua",
-}
+} 
 
 -- client scripts
 client_scripts{
@@ -47,16 +45,4 @@ files{
   "lib/Luaseq.lua",
   "lib/Tools.lua",
   "cfg/client.lua",
-  "gui/index.html",
-  "gui/design.css",
-  "gui/main.js",
-  "gui/Menu.js",
-  "gui/ProgressBar.js",
-  "gui/WPrompt.js",
-  "gui/RequestManager.js",
-  "gui/AnnounceManager.js",
-  "gui/Div.js",
-  "gui/dynamic_classes.js",
-  "gui/AudioEngine.js",
-  "gui/lib/libopus.wasm.js",
 }
