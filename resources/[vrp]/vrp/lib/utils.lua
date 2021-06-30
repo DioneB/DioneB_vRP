@@ -10,6 +10,7 @@ function table.maxn(t)
   return max
 end
 
+
 local modules = {}
 function module(rsc, path)
   if path == nil then
@@ -20,11 +21,17 @@ function module(rsc, path)
   local module = modules[key]
   if module then return module end
   local code = LoadResourceFile(rsc, path..".lua")
-  if not code then return end
+  if not code then
+    print("resource file "..rsc.."/"..path..".lua not found")
+  return end
   local f,err = load(code, rsc.."/"..path..".lua")
-  if not f then return end
+  if not f then
+    print("error parsing module "..rsc.."/"..path..":"..debug.traceback(err))
+  return end
   local ok, res = xpcall(f, debug.traceback)
-  if not ok then return end
+  if not ok then
+    print("error loading module "..rsc.."/"..path..":"..res)
+  return end
   modules[key] = res
   return res
 end
@@ -49,13 +56,13 @@ local function areturn(self, ...)
 end
 
 function async(func)
-  if not func then
+  if func then
     Citizen.CreateThreadNow(func)
-  return end
-  if not Debug.active then
-    return setmetatable({ wait = wait, p = promise.new() }, { __call = areturn })
   end
-  return setmetatable({ wait = wait, p = promise.new(), traceback = debug.traceback("",2) }, { __call = areturn })
+  if Debug.active then -- debug
+    return setmetatable({ wait = wait, p = promise.new(), traceback = debug.traceback("",2) }, { __call = areturn })
+  end
+  return setmetatable({ wait = wait, p = promise.new() }, { __call = areturn })
 end
 
 function parseInt(v)
