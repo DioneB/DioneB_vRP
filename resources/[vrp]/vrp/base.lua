@@ -1,6 +1,5 @@
 local Proxy = module("lib/Proxy")
 local Tunnel = module("lib/Tunnel")
-local Luang = module("lib/Luang")
 Debug = module("lib/Debug")
 local config = module("cfg/base")
 vRP = {}
