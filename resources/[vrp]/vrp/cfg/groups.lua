@@ -18,6 +18,7 @@ cfg.groups = {
     "coords",
     "tptome",
     "tpcds",
+    "tpway",
     "tpto",
     "noclip"
   },

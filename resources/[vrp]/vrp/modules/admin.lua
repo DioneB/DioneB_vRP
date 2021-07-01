@@ -28,6 +28,12 @@ RegisterCommand('givemoney',function(source,args,rawCommand)
   vRP.ToDiscord(source,GetConvar("Wh_AdminActions", "none"),"Spawn de Dinheiro",uMsg,10053324)
 end)
 
+RegisterCommand('nc',function(source,args,rawCommand)
+  local user_id = vRP.getUserId(source)
+  if not vRP.hasPermission(user_id,"noclip") then return end
+  vRPclient.toggleNoclip(source)
+end)
+
 RegisterCommand('tptome',function(source,args,rawCommand)
   local user_id = vRP.getUserId(source)
   if not vRP.hasPermission(user_id,"tptome") then return end
@@ -47,10 +53,11 @@ RegisterCommand('tpto',function(source,args,rawCommand)
   vRPclient.teleport(source,vRPclient.getPosition(tplayer))
 end)
 
-RegisterCommand('nc',function(source,args,rawCommand)
-  local user_id = vRP.getUserId(source)
-  if not vRP.hasPermission(user_id,"noclip") then return end
-  vRPclient.toggleNoclip(source)
+RegisterCommand('tpway',function(source,args,rawCommand)
+	local user_id = vRP.getUserId(source)
+	if vRP.hasPermission(user_id,"tpway") then
+		vRPclient.teleportToWaypoint(source)
+	end
 end)
 
 RegisterCommand('tpcds',function(source,args,rawCommand)

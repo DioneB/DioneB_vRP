@@ -39,6 +39,18 @@ function tvRP.toggleNoclip()
     SetEntityVisible(ped, true, false)
   end
 end
+function tvRP.teleportToWaypoint()
+  noclip = not noclip
+  MainThread()
+  local ped = GetPlayerPed(-1)
+  if noclip then
+    SetEntityInvincible(ped, true)
+    SetEntityVisible(ped, false, false)
+  else
+    SetEntityInvincible(ped, false)
+    SetEntityVisible(ped, true, false)
+  end
+end
 
 function tvRP.isNoclip()
   return noclip
