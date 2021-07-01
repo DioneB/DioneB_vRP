@@ -1,11 +1,10 @@
 local cfg = module("cfg/inventory")
 vRP.items = {}
-
-function vRP.defInventoryItem(idname,name,description,weight)
+function vRP.defInventoryItem(idname,name,description,prop,weight)
   if weight == nil then
     weight = 0
   end
-  local item = {name=name,description=description,weight=weight}
+  local item = {name=name,description=description,prop=prop,weight=weight}
   vRP.items[idname] = item
 end
 
@@ -54,6 +53,11 @@ function vRP.getItemWeight(idname)
   local item = vRP.items[args[1]]
   if item then return vRP.computeItemWeight(item,args) end
   return 0
+end
+
+function vRP.getItemProp(idname)
+  if not vRP.items[idname] then return end
+  return vRP.items[idname].prop
 end
 
 function vRP.computeItemsWeight(items)
