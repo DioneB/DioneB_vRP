@@ -159,6 +159,17 @@ function vRP.getUserIdByIdentifiers(ids)
   end
 end
 
+function vRP.GetIDFromSource(Type, ID)
+	local IDs = GetPlayerIdentifiers(ID)
+	for k, CurrentID in pairs(IDs) do
+		local ID = splitString(CurrentID, ":")
+		if (ID[1]:lower() == string.lower(Type)) then
+			return ID[2]:lower()
+		end
+	end
+	return nil
+end
+
 function vRP.getSourceIdKey(source)
   local ids = GetPlayerIdentifiers(source)
   local idk = "idk_"
@@ -360,6 +371,35 @@ end
 async(function()
   task_save_datatables()
 end)
+
+
+local svLogo = GetConvar("Sv_Logo", 'https://i.imgur.com/e4wXiaS.png')
+
+AddEventHandler("vRP:ToDiscord",function(source, WebHook, Name, Message, color)
+	vRP.ToDiscord(source, WebHook, Name, Message, color)
+end)
+ 
+function vRP.ToDiscord(source, WebHook, Name, Message, color)
+	local color = color or 16711680
+	if Message == nil or Message == "" then return end
+	Image = svLogo
+	if vRP.GetIDFromSource("steam", source) then
+		PerformHttpRequest("http://steamcommunity.com/profiles/" .. tonumber(vRP.GetIDFromSource("steam", source), 16) .. "/?xml=1",function(Error, Content, Head)
+			local SteamProfileSplitted = stringsplit(Content, "\n")
+			for i, Line in ipairs(SteamProfileSplitted) do
+				if Line:find("<avatarFull>") then
+					Image = Line:gsub("	<avatarFull><!%[CDATA%[", ""):gsub("]]></avatarFull>", "")
+					local dsData = {{["color"] = color,["title"] = Name,["description"] = Message,["footer"] = {["text"] = "Asgard RP",["icon_url"] = svLogo}}}
+					PerformHttpRequest(WebHook,function(Error, Content, Head)end,"POST",json.encode({username = GetPlayerName(source), avatar_url = Image, embeds = dsData}),{["Content-Type"] = "application/json"})
+					return
+				end
+			end
+		end)
+	end
+end
+
+
+
 
 AddEventHandler("queue:playerConnecting",function(source,ids,name,setKickReason,deferrals)
 	deferrals.defer()

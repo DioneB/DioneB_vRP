@@ -11,6 +11,7 @@ server_scripts{
   "lib/utils.lua",
   "base.lua",
   "queue.lua",
+  "modules/admin.lua",
   "modules/gui.lua",
   "modules/group.lua",
   "modules/survival.lua",

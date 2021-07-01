@@ -13,38 +13,24 @@ local cfg = {}
 cfg.groups = {
   ["superadmin"] = {
     _config = {onspawn = function(player) vRPclient._notify(player,"You are superadmin.") end},
-    "player.group.add",
-    "player.group.remove",
-    "player.givemoney",
-    "player.giveitem"
+    "givemoney",
+    "giveitem",
+    "coords",
+    "tptome",
+    "tpcds",
+    "tpto",
+    "noclip"
   },
   ["admin"] = {
-    "admin.tickets",
-    "admin.announce",
-    "player.list",
-    "player.whitelist",
-    "player.unwhitelist",
-    "player.kick",
-    "player.ban",
-    "player.unban",
-    "player.noclip",
-    "player.custom_emote",
-    "player.custom_sound",
-    "player.display_custom",
-    "player.coords",
-    "player.tptome",
-    "player.tpto"
+    "coords",
+    "tptome",
+    "tpcds",
+    "tpto",
+    "noclip"
   },
-  ["god"] = {
-    "admin.god" -- reset survivals/health periodically
-  },
-  -- the group user is auto added to all logged players
+
   ["user"] = {
-    "player.phone",
-    "player.calladmin",
-    "police.askid",
-    "police.store_weapons",
-    "police.seizable" -- can be seized
+    "perm",
   },
   ["police"] = {
     _config = {
