@@ -21,14 +21,16 @@ cfg.groups = {
     "tpcds",
     "tpway",
     "tpto",
-    "noclip"
+    "noclip",
+    "heal",
   },
   ["admin"] = {
     "coords",
     "tptome",
     "tpcds",
     "tpto",
-    "noclip"
+    "noclip",
+    "heal",
   },
 
   ["user"] = {

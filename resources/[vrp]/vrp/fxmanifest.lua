@@ -11,7 +11,6 @@ server_scripts{
   "lib/utils.lua",
   "base.lua",
   "queue.lua",
-  "modules/admin.lua",
   "modules/gui.lua",
   "modules/group.lua",
   "modules/survival.lua",
@@ -22,6 +21,7 @@ server_scripts{
   "modules/aptitude.lua",
   "modules/basic_items.lua",
   "modules/cloakroom.lua",
+  "modules/admin.lua",
 } 
 
 -- client scripts

@@ -4,6 +4,35 @@
 
 -- COMMANDS
 
+RegisterCommand('heal', function(source, args, rawCommand)
+	local user_id = vRP.getUserId(source)
+	local usersource = source
+	if vRP.hasPermission(user_id,"heal") then
+		if args[1] ~= nil then
+			local userid = tonumber(args[1])
+			local usersource = vRP.getUserSource(userid)
+      vRPclient.killGod(usersource)
+      vRP.UpdateDeathStatus(usersource, false)	
+			vRP.setHunger(userid,0)
+			vRP.setThirst(userid,0)
+			vRP.setSujeira(userid,0)
+			vRP.setSleep(userid,0)
+			vRP.setNesc(userid,0)
+      vRPclient.setHealth(usersource,400)
+		else
+      vRPclient.killGod(usersource)
+      vRP.UpdateDeathStatus(usersource, false)
+			vRP.setHunger(user_id,0)
+			vRP.setThirst(user_id,0)
+			vRP.setSujeira(user_id,0)
+			vRP.setSleep(user_id,0)
+			vRP.setNesc(user_id,0)
+      vRPclient.setHealth(usersource,400)
+		end		
+	end		
+end)
+
+
 RegisterCommand('giveitem',function(source,args,rawCommand)
   local user_id = vRP.getUserId(source)
   if not vRP.hasPermission(user_id,"giveitem") then return end
@@ -44,7 +73,7 @@ RegisterCommand('nc',function(source,args,rawCommand)
   local user_id = vRP.getUserId(source)
   if not vRP.hasPermission(user_id,"noclip") then return end
   vRPclient.toggleNoclip(source)
-end)
+end) 
 
 RegisterCommand('tptome',function(source,args,rawCommand)
   local user_id = vRP.getUserId(source)
