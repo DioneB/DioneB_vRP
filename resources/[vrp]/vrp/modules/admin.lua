@@ -12,8 +12,8 @@ RegisterCommand('giveitem',function(source,args,rawCommand)
 end)
 
 RegisterCommand('givemoney',function(source,args,rawCommand)
-	local user_id = vRP.getUserId(source)
-	if not vRP.hasPermission(user_id,"givemoney") then return end
+  local user_id = vRP.getUserId(source)
+  if not vRP.hasPermission(user_id,"givemoney") then return end
   if not args[1] then return end
   local identity = vRP.getUserIdentity(user_id)
   local amount = tonumber(args[1])
@@ -29,8 +29,8 @@ RegisterCommand('givemoney',function(source,args,rawCommand)
 end)
 
 RegisterCommand('tptome',function(source,args,rawCommand)
-	local user_id = vRP.getUserId(source)
-	if not vRP.hasPermission(user_id,"tptome") then return end
+  local user_id = vRP.getUserId(source)
+  if not vRP.hasPermission(user_id,"tptome") then return end
   if not args[1] then return end
   local tplayer = vRP.getUserSource(tonumber(args[1]))
   if not tplayer then return end
@@ -39,8 +39,8 @@ RegisterCommand('tptome',function(source,args,rawCommand)
 end)
 
 RegisterCommand('tpto',function(source,args,rawCommand)
-	local user_id = vRP.getUserId(source)
-	if not vRP.hasPermission(user_id,"tpto") then return end
+  local user_id = vRP.getUserId(source)
+  if not vRP.hasPermission(user_id,"tpto") then return end
   if not args[1] then return end
   local tplayer = vRP.getUserSource(tonumber(args[1]))
   if not tplayer then return end
@@ -48,14 +48,14 @@ RegisterCommand('tpto',function(source,args,rawCommand)
 end)
 
 RegisterCommand('nc',function(source,args,rawCommand)
-	local user_id = vRP.getUserId(source)
-	if not vRP.hasPermission(user_id,"noclip") then return end
+  local user_id = vRP.getUserId(source)
+  if not vRP.hasPermission(user_id,"noclip") then return end
   vRPclient.toggleNoclip(source)
 end)
 
 RegisterCommand('tpcds',function(source,args,rawCommand)
-	local user_id = vRP.getUserId(source)
-	if not vRP.hasPermission(user_id,"tpcds") then return	end 
+  local user_id = vRP.getUserId(source)
+  if not vRP.hasPermission(user_id,"tpcds") then return	end 
   local fcoords = args[1]
   -- local fcoords = vRP.prompt(source,"Cordenadas:","")
   if fcoords == "" then return end
@@ -67,8 +67,8 @@ RegisterCommand('tpcds',function(source,args,rawCommand)
 end)
 
 RegisterCommand('coords',function(source,args,rawCommand)
-	local user_id = vRP.getUserId(source)
-	if not vRP.hasPermission(user_id,"coords") then return end
+  local user_id = vRP.getUserId(source)
+  if not vRP.hasPermission(user_id,"coords") then return end
   local x,y,z,h = vRPclient.getPosition(source)
   local lugar = vRP.prompt(source,"Lugar:","")
   if lugar == "" then return end
@@ -77,8 +77,8 @@ RegisterCommand('coords',function(source,args,rawCommand)
 end)
 
 RegisterCommand('cds',function(source,args,rawCommand)
-	local user_id = vRP.getUserId(source)
-	if not vRP.hasPermission(user_id,"coords") then return end
+  local user_id = vRP.getUserId(source)
+  if not vRP.hasPermission(user_id,"coords") then return end
   local x,y,z,h = vRPclient.getPosition(source)
   local uMsg = "**Coords** ```coords = vector3("..x..","..y..","..z.."), heading = "..h.."```"
   vRP.ToDiscord(source,GetConvar("Wh_Coords", "none"),"Coordenada Salva",uMsg,10053324)
