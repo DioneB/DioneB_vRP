@@ -61,18 +61,15 @@ function tvRP.toggleNoclip()
   if noclip then
     SetEntityInvincible(ped, true)
     SetEntityVisible(ped, false, false)
-  else
-    SetEntityInvincible(ped, false)
-    SetEntityVisible(ped, true, false)
-  end
+  return end
+  SetEntityInvincible(ped, false)
+  SetEntityVisible(ped, true, false)
 end
 
 function tvRP.teleportToWaypoint()
 	local ped = PlayerPedId()
 	local veh = GetVehiclePedIsUsing(ped)
-	if IsPedInAnyVehicle(ped) then
-		ped = veh
-    end
+	if IsPedInAnyVehicle(ped) then ped = veh end
 	local waypointBlip = GetFirstBlipInfoId(8)
 	local x,y,z = table.unpack(Citizen.InvokeNative(0xFA7C7F0AADF25D09,waypointBlip,Citizen.ResultAsVector()))
 	local ground
