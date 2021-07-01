@@ -3,6 +3,18 @@
 
 
 -- COMMANDS
+RegisterCommand('wlon', function(source, args, rawCommand)
+	local user_id = vRP.getUserId(source)
+	if not vRP.hasPermission(user_id,"whitelist") then return end	
+	ExecuteCommand("sets wf_whitelist Ativa")
+end)
+
+RegisterCommand('wloff', function(source, args, rawCommand)
+	local user_id = vRP.getUserId(source)
+	if not vRP.hasPermission(user_id,"whitelist") then return end	
+  ExecuteCommand("sets wf_whitelist Desativada")		
+end)
+
 RegisterCommand('heal', function(source, args, rawCommand)
   local user_id = vRP.getUserId(source)
   local usersource = source
