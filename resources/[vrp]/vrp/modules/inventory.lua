@@ -1,5 +1,6 @@
 local cfg = module("cfg/inventory")
 vRP.items = {}
+local UsableItems = {}
 function vRP.defInventoryItem(idname,name,description,prop,weight)
   if weight == nil then
     weight = 0
@@ -8,51 +9,33 @@ function vRP.defInventoryItem(idname,name,description,prop,weight)
   vRP.items[idname] = item
 end
 
-function vRP.computeItemName(item,args)
-  if type(item.name) == "string" then return item.name end
-  return item.name(args)
+function vRP.RegisterItem(fullid, cb)
+	UsableItems[fullid] = cb
 end
 
-function vRP.computeItemDescription(item,args)
-  if type(item.description) == "string" then return item.description end
-  return item.description(args) 
-end
-
-function vRP.computeItemWeight(item,args)
-  if type(item.weight) == "number" then return item.weight end
-  return item.weight(args)
+function vRP.UseItem(source, fullid)
+  if UsableItems[fullid] then
+    UsableItems[fullid](source)
+  end
 end
 
 function vRP.parseItem(idname)
   return splitString(idname,"|")
 end
 
-function vRP.getItemDefinition(idname)
-  local args = vRP.parseItem(idname)
-  local item = vRP.items[args[1]]
-  if not item then return nil,nil,nil end
-  return vRP.computeItemName(item,args), vRP.computeItemDescription(item,args), vRP.computeItemWeight(item,args)
-end
-
 function vRP.getItemName(idname)
-  local args = vRP.parseItem(idname)
-  local item = vRP.items[args[1]]
-  if item then return vRP.computeItemName(item,args) end
-  return args[1]
+  if not vRP.items[idname] then return end
+  return vRP.items[idname].name
 end
 
 function vRP.getItemDescription(idname)
-  local args = vRP.parseItem(idname)
-  local item = vRP.items[args[1]]
-  if item then return vRP.computeItemDescription(item,args) end
-  return ""
+  if not vRP.items[idname] then return end
+  return vRP.items[idname].description
 end
 
 function vRP.getItemWeight(idname)
-  local args = vRP.parseItem(idname)
-  local item = vRP.items[args[1]]
-  if item then return vRP.computeItemWeight(item,args) end
-  return 0
+  if not vRP.items[idname] then return end
+  return vRP.items[idname].weight
 end
 
 function vRP.getItemProp(idname)
