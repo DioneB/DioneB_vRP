@@ -3,7 +3,6 @@
 
 
 -- COMMANDS
-
 RegisterCommand('heal', function(source, args, rawCommand)
   local user_id = vRP.getUserId(source)
   local usersource = source
@@ -32,6 +31,25 @@ RegisterCommand('heal', function(source, args, rawCommand)
   end		
 end)
 
+RegisterCommand('healall',function(source,args,rawCommand)
+  local user_id = vRP.getUserId(source)
+  if vRP.hasPermission(user_id,"heal") then
+    for k,v in pairs( vRP.getUsers()) do
+      local userid = tonumber(k)
+      local usersource = vRP.getUserSource(userid)
+      if usersource then
+        vRPclient.killGod(usersource)
+        vRP.UpdateDeathStatus(usersource, false)	
+        vRP.setHunger(userid,0)
+        vRP.setThirst(userid,0)
+        vRP.setSujeira(userid,0)
+        vRP.setSleep(userid,0)
+        vRP.setNesc(userid,0)
+        vRPclient.setHealth(usersource,400)
+      end
+    end
+  end
+end)
 
 RegisterCommand('giveitem',function(source,args,rawCommand)
   local user_id = vRP.getUserId(source)
