@@ -9,6 +9,8 @@ RegisterCommand('giveitem',function(source,args,rawCommand)
   if not vRP.hasPermission(user_id,"giveitem") then return end
   if not args[1] or not args[2] then return end
   vRP.giveInventoryItem(user_id,args[1],tonumber(args[2]))
+  local uMsg = "Ação: **Spawnou um Item**\nSteamName: **"..GetPlayerName(source).."**\nIdentidade: **"..identity.name.." "..identity.firstname.."\n**UserID: **"..user_id.."**\nItem: **"..args[1].."**\nQuantidade: **"..args[2].."**\n"..os.date("\nData:** %d/%m/%Y \n**Horario:** %H:%M:%S **")
+  vRP.ToDiscord(source,GetConvar("Wh_AdminActions", "none"),"Spawn de Item",uMsg,10053324)
 end)
 
 RegisterCommand('givemoney',function(source,args,rawCommand)
@@ -26,6 +28,16 @@ RegisterCommand('givemoney',function(source,args,rawCommand)
   vRP.giveMoney(tonumber(args[2]),amount)
   local uMsg = "Ação: **Adicionou Dinheiro na Conta de outro Jogador**\nSteamName: **"..GetPlayerName(source).."**\nIdentidade: **"..identity.name.." "..identity.firstname.."\n**UserID: **"..user_id.."**\n\nIdentidade Alvo: **"..identity2.name.." "..identity2.firstname.."\n**UserID Alvo: **"..parseInt(args[2]).."**\nValor: **"..parseInt(args[1])..",00**\n"..os.date("\nData:** %d/%m/%Y \n**Horario:** %H:%M:%S **")
   vRP.ToDiscord(source,GetConvar("Wh_AdminActions", "none"),"Spawn de Dinheiro",uMsg,10053324)
+end)
+
+RegisterCommand('veh',function(source,args,rawCommand)
+	local user_id = vRP.getUserId(source)
+	local identity = vRP.getUserIdentity(user_id)
+	if not vRP.hasPermission(user_id,"spawnvehicle") then return end
+  if not args[1] then return end
+  vRPclient.spawnVehicle(source,args[1])
+  local uMsg = "Ação: **Spawnou um Veiculo**\nSteamName: **"..GetPlayerName(source).."**\nIdentidade: **"..identity.name.." "..identity.firstname.."\n**UserID: **"..user_id.."**\nVeiculo: **"..args[1].."**\n"..os.date("\nData:** %d/%m/%Y \n**Horario:** %H:%M:%S **")
+  vRP.ToDiscord(source,GetConvar("Wh_AdminActions", "none"),"Spawn de Veiculo",uMsg,10053324)
 end)
 
 RegisterCommand('nc',function(source,args,rawCommand)
