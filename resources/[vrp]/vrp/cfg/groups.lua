@@ -14,6 +14,7 @@ cfg.groups = {
   ["superadmin"] = {
     _config = {onspawn = function(player) vRPclient._notify(player,"You are superadmin.") end},
     "spawnvehicle",
+    "whitelist",
     "givemoney",
     "giveitem",
     "coords",
@@ -25,6 +26,7 @@ cfg.groups = {
     "heal",
   },
   ["admin"] = {
+    "whitelist",
     "coords",
     "tptome",
     "tpcds",
