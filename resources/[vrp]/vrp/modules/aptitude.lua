@@ -69,18 +69,18 @@ function vRP.varyExp(user_id, group, aptitude, amount)
       local group_title = vRP.getAptitudeGroupTitle(group)
       local aptitude_title = def[1]
       if amount < 0 then
-        -- vRPclient._notify(player,lang.aptitude.lose_exp({group_title,aptitude_title,-1*amount}))
+        vRPclient._notify(player,'error',5,aptitude_title,'Você Perdeu Experiencia: -('.. -1*amount ..')')
       elseif amount > 0 then
-        -- vRPclient._notify(player,lang.aptitude.earn_exp({group_title,aptitude_title,amount}))
+        vRPclient._notify(player,'info',5,aptitude_title,'Você Ganhou Experiencia: +('.. -1*amount ..')')
       end
 
       --- level up/down
       local new_level = math.floor(vRP.expToLevel(exp))
       local diff = new_level-level
       if diff < 0 then
-        -- vRPclient._notify(player,lang.aptitude.level_down({group_title,aptitude_title,new_level}))
+        vRPclient._notify(player,'error',5,aptitude_title,'Você Perdeu Nivel de '..group_title..'/'..aptitude_title..': ('.. new_level ..')')
       elseif diff > 0 then
-        -- vRPclient._notify(player,lang.aptitude.level_up({group_title,aptitude_title,new_level}))
+        vRPclient._notify(player,'info',5,aptitude_title,'Você Ganhou Nivel de '..group_title..'/'..aptitude_title..': ('.. new_level ..')')
       end
     end
   end

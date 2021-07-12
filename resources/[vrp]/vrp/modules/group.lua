@@ -123,76 +123,87 @@ vRP.registerPermissionFunction("is", function(user_id, parts)
     return vRPclient.isInVehicle(player)
   end
 end)
-
 function vRP.hasPermission(user_id, perm)
   local user_groups = vRP.getUserGroups(user_id)
   local fchar = string.sub(perm,1,1)
-  if fchar == "@" then
+  if fchar == "@" then -- special aptitude permission
     local _perm = string.sub(perm,2,string.len(perm))
     local parts = splitString(_perm,".")
-    if #parts ~= 3 then return end
-    local group = parts[1]
-    local aptitude = parts[2]
-    local op = parts[3]
-    local alvl = math.floor(vRP.expToLevel(vRP.getExp(user_id,group,aptitude)))
-    local fop = string.sub(op,1,1)
-    if fop == "<" then  -- less (group.aptitude.<x)
-      local lvl = parseInt(string.sub(op,2,string.len(op)))
-      if alvl < lvl then return true end
+    if #parts == 3 then -- decompose group.aptitude.operator
+      local group = parts[1]
+      local aptitude = parts[2]
+      local op = parts[3]
+      local alvl = math.floor(vRP.expToLevel(vRP.getExp(user_id,group,aptitude)))
+      local fop = string.sub(op,1,1)
+      if fop == "<" then  -- less (group.aptitude.<x)
+        local lvl = parseInt(string.sub(op,2,string.len(op)))
+        if alvl < lvl then return true end
+      elseif fop == ">" then -- greater (group.aptitude.>x)
+        local lvl = parseInt(string.sub(op,2,string.len(op)))
+        if alvl > lvl then return true end
+      else -- equal (group.aptitude.x)
+        local lvl = parseInt(string.sub(op,1,string.len(op)))
+        if alvl == lvl then return true end
+      end
     end
-    if fop == ">" then -- greater (group.aptitude.>x)
-      local lvl = parseInt(string.sub(op,2,string.len(op)))
-      if alvl > lvl then return true end
-    end 
-    local lvl = parseInt(string.sub(op,1,string.len(op)))
-    if alvl == lvl then return true end
-  return end
-  if fchar == "#" then -- special item permission
+  elseif fchar == "#" then -- special item permission
     local _perm = string.sub(perm,2,string.len(perm))
     local parts = splitString(_perm,".")
-    if #parts ~= 2 then return end
-    local item = parts[1]
-    local op = parts[2]
-    local amount = vRP.getInventoryItemAmount(user_id, item)
-    local fop = string.sub(op,1,1)
-    if fop == "<" then  -- less (item.<x)
-      local n = parseInt(string.sub(op,2,string.len(op)))
-      if amount < n then return true end
+    if #parts == 2 then -- decompose item.operator
+      local item = parts[1]
+      local op = parts[2]
+
+      local amount = vRP.getInventoryItemAmount(user_id, item)
+
+      local fop = string.sub(op,1,1)
+      if fop == "<" then  -- less (item.<x)
+        local n = parseInt(string.sub(op,2,string.len(op)))
+        if amount < n then return true end
+      elseif fop == ">" then -- greater (item.>x)
+        local n = parseInt(string.sub(op,2,string.len(op)))
+        if amount > n then return true end
+      else -- equal (item.x)
+        local n = parseInt(string.sub(op,1,string.len(op)))
+        if amount == n then return true end
+      end
     end
-    if fop == ">" then -- greater (item.>x)
-      local n = parseInt(string.sub(op,2,string.len(op)))
-      if amount > n then return true end
-    end
-    local n = parseInt(string.sub(op,1,string.len(op)))
-    if amount == n then return true end
-  return end
-  if fchar == "!" then -- special function permission
+  elseif fchar == "!" then -- special function permission
     local _perm = string.sub(perm,2,string.len(perm))
     local parts = splitString(_perm,".")
-    if #parts <= 0 then return end
-    local fperm = func_perms[parts[1]]
-    if not fperm then
-      return false 
+    if #parts > 0 then
+      local fperm = func_perms[parts[1]]
+      if fperm then
+        return fperm(user_id, parts) or false
+      else
+        return false
+      end
     end
-    return fperm(user_id, parts) or false    
-  end
-  local nperm = "-"..perm
-  for k,v in pairs(user_groups) do
-    if not v then return end
-    local group = groups[k]
-    if not group then return end
-    for l,w in pairs(group) do
-      if l ~= "_config" and w == nperm then return false end
+  else -- regular plain permission
+    -- precheck negative permission
+    local nperm = "-"..perm
+    for k,v in pairs(user_groups) do
+      if v then -- prevent issues with deleted entry
+        local group = groups[k]
+        if group then
+          for l,w in pairs(group) do -- for each group permission
+            if l ~= "_config" and w == nperm then return false end
+          end
+        end
+      end
+    end
+    -- check if the permission exists
+    for k,v in pairs(user_groups) do
+      if v then -- prevent issues with deleted entry
+        local group = groups[k]
+        if group then
+          for l,w in pairs(group) do -- for each group permission
+            if l ~= "_config" and w == perm then return true end
+          end
+        end
+      end
     end
   end
-  for k,v in pairs(user_groups) do
-    if not v then return end
-    local group = groups[k]
-    if not group then return end
-    for l,w in pairs(group) do -- for each group permission
-      if l ~= "_config" and w == perm then return true end
-    end
-  end
+
   return false
 end
 

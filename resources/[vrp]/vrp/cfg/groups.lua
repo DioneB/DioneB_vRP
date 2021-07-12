@@ -12,7 +12,7 @@ local cfg = {}
 
 cfg.groups = {
   ["superadmin"] = {
-    _config = {onspawn = function(player) vRPclient._notify(player,"You are superadmin.") end},
+    _config = {onspawn = function(player) vRPclient._notify(player,'info',30,'Bem-Vindo!','Você é um SuperAdmin') end},
     "spawnvehicle",
     "whitelist",
     "givemoney",

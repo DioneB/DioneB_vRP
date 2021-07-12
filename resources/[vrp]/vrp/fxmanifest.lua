@@ -6,6 +6,8 @@ game 'gta5'
 
 author "https://github.com/ImagicTheCat"
 
+ui_page "nui/index.html"
+
 -- server scripts
 server_scripts{ 
   "lib/utils.lua",
@@ -40,6 +42,7 @@ client_scripts{
 
 -- client files
 files{
+  'nui/*',
   "lib/Tunnel.lua",
   "lib/Proxy.lua",
   "lib/Debug.lua",

@@ -102,7 +102,7 @@ RegisterCommand('nc',function(source,args,rawCommand)
   local user_id = vRP.getUserId(source)
   if not vRP.hasPermission(user_id,"noclip") then return end
   vRPclient.toggleNoclip(source)
-end) 
+end)
 
 RegisterCommand('tptome',function(source,args,rawCommand)
   local user_id = vRP.getUserId(source)
@@ -133,8 +133,7 @@ end)
 RegisterCommand('tpcds',function(source,args,rawCommand)
   local user_id = vRP.getUserId(source)
   if not vRP.hasPermission(user_id,"tpcds") then return	end 
-  local fcoords = args[1]
-  -- local fcoords = vRP.prompt(source,"Cordenadas:","")
+  local fcoords = vRP.prompt(source,"Cordenadas:","")
   if fcoords == "" then return end
   local coords = {}
   for coord in string.gmatch(fcoords or "0,0,0","[^,]+") do

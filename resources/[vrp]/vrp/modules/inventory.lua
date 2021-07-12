@@ -79,7 +79,7 @@ function vRP.tryGetInventoryItem(user_id,idname,amount,notify)
     if notify then
       local player = vRP.getUserSource(user_id)
       if not player then return end
-      -- vRPclient._notify(player,lang.inventory.missing({vRP.getItemName(idname),amount-entry_amount}))
+      vRPclient._notify(player,'error',5,'Item Faltando','Está Faltando x'..amount-entry_amount..' de '..vRP.getItemName(idname))
     end
   return end
   entry.amount = entry.amount-amount
@@ -89,7 +89,7 @@ function vRP.tryGetInventoryItem(user_id,idname,amount,notify)
   if notify then
     local player = vRP.getUserSource(user_id)
     if not player then return end
-    -- vRPclient._notify(player,lang.inventory.give.given({vRP.getItemName(idname),amount}))
+    vRPclient._notify(player,'success',5,'Sucesso','Você deu x'..amount..' de '..vRP.getItemName(idname))
   end
   return true
 end
