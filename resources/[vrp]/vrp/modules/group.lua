@@ -21,35 +21,6 @@ function vRP.getUserGroups(user_id)
   return {}
 end
 
-function vRP.addUserGroup(user_id,group)
-  if vRP.hasGroup(user_id,group) then return end
-  local user_groups = vRP.getUserGroups(user_id)
-  local ngroup = groups[group]
-  if not ngroup then return end
-  if ngroup._config and ngroup._config.gtype ~= nil then 
-    local _user_groups = {}
-    for k,v in pairs(user_groups) do
-      _user_groups[k] = v
-    end
-    for k,v in pairs(_user_groups) do
-      local kgroup = groups[k]
-      if kgroup and kgroup._config and ngroup._config and kgroup._config.gtype == ngroup._config.gtype then
-        vRP.removeUserGroup(user_id,k)
-      end
-    end
-  end
-  user_groups[group] = true
-  local player = vRP.getUserSource(user_id)
-  if ngroup._config and ngroup._config.onjoin and player ~= nil then
-    ngroup._config.onjoin(player)
-  end
-  local gtype = nil
-  if ngroup._config then
-    gtype = ngroup._config.gtype 
-  end
-  TriggerEvent("vRP:playerJoinGroup", user_id, group, gtype)
-end
-
 function vRP.getUserGroupByType(user_id,gtype)
   local user_groups = vRP.getUserGroups(user_id)
   for k,v in pairs(user_groups) do
@@ -79,27 +50,67 @@ function vRP.getUsersByPermission(perm)
   return users
 end
 
-function vRP.removeUserGroup(user_id,group)
-  local user_groups = vRP.getUserGroups(user_id)
-  local groupdef = groups[group]
-  if groupdef and groupdef._config and groupdef._config.onleave then
-    local source = vRP.getUserSource(user_id)
-    if source then
-      groupdef._config.onleave(source)
-    end
-  end
-  local gtype = nil
-  if groupdef._config then
-    gtype = groupdef._config.gtype 
-  end
-  TriggerEvent("vRP:playerLeaveGroup", user_id, group, gtype)
-  user_groups[group] = nil
-end
-
 function vRP.hasGroup(user_id,group)
   local user_groups = vRP.getUserGroups(user_id)
   return (user_groups[group] ~= nil)
 end
+
+
+function vRP.addUserGroup(user_id,group)
+  if vRP.hasGroup(user_id,group) then return end
+  local user_groups = vRP.getUserGroups(user_id)
+  local ngroup = groups[group]
+  if not ngroup then return end
+  local player = vRP.getUserSource(user_id)
+  if player then
+    if ngroup._config and ngroup._config.gtype ~= nil then 
+      local _user_groups = {}
+      for k,v in pairs(user_groups) do
+        _user_groups[k] = v
+      end
+      for k,v in pairs(_user_groups) do
+        local kgroup = groups[k]
+        if kgroup and kgroup._config and ngroup._config and kgroup._config.gtype == ngroup._config.gtype then
+          vRP.removeUserGroup(user_id,k)
+        end
+      end
+    end
+    user_groups[group] = true
+    if ngroup._config and ngroup._config.onjoin and player ~= nil then
+      ngroup._config.onjoin(player)
+    end
+    local gtype = nil
+    if ngroup._config then
+      gtype = ngroup._config.gtype 
+    end
+    TriggerEvent("vRP:playerJoinGroup", user_id, group, gtype)
+  return end
+  local sdata = json.decode(vRP.getUData(user_id, "vRP:datatable"))
+  sdata.groups[group] = true
+  vRP.setUData(user_id,"vRP:datatable",json.encode(sdata))
+end
+
+function vRP.removeUserGroup(user_id,group)
+  local user_groups = vRP.getUserGroups(user_id)
+  local groupdef = groups[group]
+  if not groupdef then return end
+  local player = vRP.getUserSource(user_id)
+  if player then
+    if groupdef._config and groupdef._config.onleave then
+      groupdef._config.onleave(player)
+    end
+    local gtype = nil
+    if groupdef._config then
+      gtype = groupdef._config.gtype 
+    end
+    TriggerEvent("vRP:playerLeaveGroup", user_id, group, gtype)
+    user_groups[group] = nil
+  return end
+  local sdata = json.decode(vRP.getUData(user_id, "vRP:datatable"))
+  sdata.groups[group] = nil
+  vRP.setUData(user_id,"vRP:datatable",json.encode(sdata))
+end
+
 
 local func_perms = {}
 function vRP.registerPermissionFunction(name, callback)

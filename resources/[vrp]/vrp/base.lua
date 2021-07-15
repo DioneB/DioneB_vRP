@@ -385,7 +385,7 @@ function vRP.ToDiscord(source, WebHook, Name, Message, color)
 	Image = svLogo
 	if vRP.GetIDFromSource("steam", source) then
 		PerformHttpRequest("http://steamcommunity.com/profiles/" .. tonumber(vRP.GetIDFromSource("steam", source), 16) .. "/?xml=1",function(Error, Content, Head)
-			local SteamProfileSplitted = stringsplit(Content, "\n")
+			local SteamProfileSplitted = splitString(Content, "\n")
 			for i, Line in ipairs(SteamProfileSplitted) do
 				if Line:find("<avatarFull>") then
 					Image = Line:gsub("	<avatarFull><!%[CDATA%[", ""):gsub("]]></avatarFull>", "")

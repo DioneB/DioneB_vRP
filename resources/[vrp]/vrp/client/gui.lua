@@ -45,7 +45,12 @@ end
 -- NOTIFY
 -- success | error | alert | info | money
 function tvRP.notify(ntype,timer,title,msg)
-  SendNUIMessage({type = "ADD_NOTIFY", data = {notification = {id = math.random(1,100), ntype = ntype, timer = timer, title = title, msg = msg}}})
+  SendNUIMessage({type = "ADD_NOTIFY", data = {notification = {id = ntype..'_'..math.random(1,9000), ntype = ntype, timer = timer, title = title, msg = msg}}})
+end
+
+-- ITEM NOTIFY
+function tvRP.itemNotify(name,label,amount,action)
+  SendNUIMessage({type = "ADD_ITEM_NOTIFY", payload = {notification = {id = name..'_'..math.random(1,9000), name = name, label = label, amount = amount, action = action}}})
 end
 
 

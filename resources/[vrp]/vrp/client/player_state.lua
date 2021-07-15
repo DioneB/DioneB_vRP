@@ -175,6 +175,7 @@ function tvRP.setCustomization(custom)
           SetPlayerModel(PlayerId(), mhash)
           tvRP.giveWeapons(weapons,true)
           tvRP.setArmour(armour)
+          SetPedMaxHealth(PlayerPedId(),400)
           SetModelAsNoLongerNeeded(mhash)
         end
       end
