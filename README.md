@@ -34,7 +34,7 @@
 - Improved the Code Quality
 - Improved some Functions
 - Improved Inventory Module (durability)
-- More ...
+- More ... (see the [COMMITS](https://github.com/Santagain/DioneB_vRP/commits/main) for complete list of changes)
 - More to come ...
 
 ## License
