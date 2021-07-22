@@ -16,30 +16,29 @@ RegisterCommand('wloff', function(source, args, rawCommand)
 end)
 
 RegisterCommand('heal', function(source, args, rawCommand)
-  local user_id = vRP.getUserId(source)
-  local usersource = source
+  local src = source
+  local user_id = vRP.getUserId(src)
   if vRP.hasPermission(user_id,"heal") then
-    if args[1] ~= nil then
+    if args[1] then
       local userid = tonumber(args[1])
-      local usersource = vRP.getUserSource(userid)
-      vRPclient.killGod(usersource)
-      vRP.UpdateDeathStatus(usersource, false)	
+      local src = vRP.getUserSource(userid)
+      vRPclient.killGod(src)
+      vRP.UpdateDeathStatus(src, false)	
       vRP.setHunger(userid,0)
       vRP.setThirst(userid,0)
       vRP.setSujeira(userid,0)
       vRP.setSleep(userid,0)
       vRP.setNesc(userid,0)
-      vRPclient.setHealth(usersource,400)
-    else
-      vRPclient.killGod(usersource)
-      vRP.UpdateDeathStatus(usersource, false)
-      vRP.setHunger(user_id,0)
-      vRP.setThirst(user_id,0)
-      vRP.setSujeira(user_id,0)
-      vRP.setSleep(user_id,0)
-      vRP.setNesc(user_id,0)
-      vRPclient.setHealth(usersource,400)
-    end		
+      vRPclient.setHealth(src,400)
+    return end
+    vRPclient.killGod(src)
+    vRP.UpdateDeathStatus(src, false)
+    vRP.setHunger(user_id,0)
+    vRP.setThirst(user_id,0)
+    vRP.setSujeira(user_id,0)
+    vRP.setSleep(user_id,0)
+    vRP.setNesc(user_id,0)
+    vRPclient.setHealth(usersource,400)
   end		
 end)
 
@@ -50,6 +49,7 @@ RegisterCommand('healall',function(source,args,rawCommand)
     local userid = tonumber(k)
     local usersource = vRP.getUserSource(userid)
     if usersource then
+      vRPclient.setHealth(usersource,400)
       vRPclient.killGod(usersource)
       vRP.UpdateDeathStatus(usersource, false)	
       vRP.setHunger(userid,0)
@@ -57,7 +57,6 @@ RegisterCommand('healall',function(source,args,rawCommand)
       vRP.setSujeira(userid,0)
       vRP.setSleep(userid,0)
       vRP.setNesc(userid,0)
-      vRPclient.setHealth(usersource,400)
     end
   end
 end)
@@ -66,6 +65,7 @@ RegisterCommand('giveitem',function(source,args,rawCommand)
   local user_id = vRP.getUserId(source)
   if not vRP.hasPermission(user_id,"giveitem") then return end
   if not args[1] or not args[2] then return end
+  local identity = vRP.getUserIdentity(user_id)
   vRP.giveInventoryItem(user_id,args[1],tonumber(args[2]))
   local uMsg = "Ação: **Spawnou um Item**\nSteamName: **"..GetPlayerName(source).."**\nIdentidade: **"..identity.name.." "..identity.firstname.."\n**UserID: **"..user_id.."**\nItem: **"..args[1].."**\nQuantidade: **"..args[2].."**\n"..os.date("\nData:** %d/%m/%Y \n**Horario:** %H:%M:%S **")
   vRP.ToDiscord(source,GetConvar("Wh_AdminActions", "none"),"Spawn de Item",uMsg,10053324)

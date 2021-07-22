@@ -53,7 +53,6 @@ function tvRP.itemNotify(name,label,amount,action)
   SendNUIMessage({type = "ADD_ITEM_NOTIFY", payload = {notification = {id = name..'_'..math.random(1,9000), name = name, label = label, amount = amount, action = action}}})
 end
 
-
 -- ACTION
 function tvRP.showAction(timer,msg)
   SendNUIMessage({type = "UPDATE_ACTION_DATA", data = {timer = timer, msg = msg}})

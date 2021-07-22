@@ -26,3 +26,26 @@ function tvRP.isInVehicle()
   local ped = GetPlayerPed(-1)
   return IsPedSittingInAnyVehicle(ped) 
 end
+
+local vehList = {
+	{ ['name'] = "sc1", ['banned'] = false },
+}
+
+function tvRP.vehList(radius)
+	local ped = PlayerPedId()
+	local veh = GetVehiclePedIsUsing(ped)
+	if not IsPedInAnyVehicle(ped) then
+		veh = tvRP.getNearestVehicle(radius)
+	end
+	if IsEntityAVehicle(veh) then
+		local lock = GetVehicleDoorLockStatus(veh)
+		local trunk = GetVehicleDoorAngleRatio(v,5)
+		local x,y,z = table.unpack(GetEntityCoords(ped))
+		for k,v in pairs(vehList) do
+			if GetHashKey(v.name) == GetEntityModel(veh) then
+				local tuning = { GetNumVehicleMods(veh,13),GetNumVehicleMods(veh,12),GetNumVehicleMods(veh,15),GetNumVehicleMods(veh,11),GetNumVehicleMods(veh,16) }
+				return veh,VehToNet(veh),GetVehicleNumberPlateText(veh),v.name,lock,v.banned,trunk,GetDisplayNameFromVehicleModel(v.name),GetStreetNameFromHashKey(GetStreetNameAtCoord(x,y,z)),tuning
+			end
+		end
+	end
+end

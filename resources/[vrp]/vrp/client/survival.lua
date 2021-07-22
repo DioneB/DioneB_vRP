@@ -10,7 +10,7 @@ end
 
 function tvRP.setHealth(health)
 	local n = math.floor(health)
-	SetEntityHealth(PlayerPedId(),n)
+	SetEntityHealth(GetPlayerPed(-1),n)
 end
 
 
