@@ -1,5 +1,5 @@
 Citizen.CreateThread(function()
-	for i = 1,120 do
+	for i = 1,16 do
 		EnableDispatchService(i,false)
 	end
 end)
@@ -102,7 +102,6 @@ Citizen.CreateThread(function()
 		if IsPedBeingStunned(ped) then
 			SetPedToRagdoll(ped,10000,10000,0,0,0,0)
 		end
-
 		if IsPedBeingStunned(ped) and not tasertime then
 			tasertime = true
 			SetTimecycleModifier("REDMIST_blend")
