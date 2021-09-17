@@ -1,2 +1,3 @@
 .yarn.installed
+yarn.lock
 node_modules/
