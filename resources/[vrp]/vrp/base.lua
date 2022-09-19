@@ -373,7 +373,7 @@ async(function()
 end)
 
 
-local svLogo = GetConvar("Sv_Logo", 'https://i.imgur.com/e4wXiaS.png')
+local svLogo = GetConvar("Sv_Logo", 'https://i.imgur.com/RLZwdga.png')
 
 AddEventHandler("vRP:ToDiscord",function(source, WebHook, Name, Message, color)
 	vRP.ToDiscord(source, WebHook, Name, Message, color)
